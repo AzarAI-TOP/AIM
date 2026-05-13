@@ -1,0 +1,71 @@
+<p align="center">
+  <h1 align="center">AIM</h1>
+  <p align="center"><strong>A</strong>dvanced app<strong>I</strong>mage <strong>M</strong>anager</p>
+</p>
+
+AIM is a Flutter desktop application for managing [AppImage](https://appimage.org/) applications on Linux. It keeps your AppImages organized, creates desktop entries so they appear in your application launcher, and generates shell shortcuts — all from a clean graphical interface.
+
+## Features
+
+- **Add & Organize** — Browse and install AppImage files into a managed directory (`~/AppImages/<name>/`). AIM derives the application name and tracks multiple versions side by side.
+- **Desktop Integration** — Toggle `.desktop` entry generation so installed apps appear in your system application menu.
+- **Shell Shortcuts** — Opt into a `~/.local/bin` symlink for direct terminal access.
+- **Version Management** — Keep multiple versions of the same application and switch between them from a dropdown.
+- **Icon Extraction** — Automatically extracts application icons from AppImage Type 2 files.
+- **Metadata Persistence** — Per-application YAML metadata files keep state consistent across restarts.
+
+## Requirements
+
+- **Linux** — AIM relies on freedesktop.org paths (`~/.local/share/applications`, `~/.local/bin`) and AppImage runtime extraction.
+- **Flutter SDK** `>=3.10.7` — See the [Flutter Linux install guide](https://docs.flutter.dev/get-started/install/linux).
+
+## Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/azarai/aim.git
+cd aim
+
+# Install dependencies
+flutter pub get
+
+# Run on Linux
+flutter run -d linux
+
+# Build a release binary
+flutter build linux
+```
+
+The binary is output to `build/linux/x64/release/bundle/aim`.
+
+## Usage
+
+1. Launch AIM. An empty list is shown on first run.
+2. Press the **+** FAB and select an `.AppImage` file.
+3. Tap an application to open its detail screen:
+   - Edit the description.
+   - Toggle desktop entry and shell symlink creation.
+   - Switch between installed versions.
+4. Changes are saved automatically as you edit. Use the uninstall button to remove an app and all its data.
+
+### Directory Layout
+
+```
+~/AppImages/
+└── MyApp/
+    ├── MyApp-1.0.0.AppImage
+    ├── MyApp-2.1.0.AppImage
+    ├── icon.png
+    └── metadata.yaml
+```
+
+## Development
+
+```bash
+flutter analyze          # Static analysis
+flutter test             # Run tests
+```
+
+## License
+
+MIT
