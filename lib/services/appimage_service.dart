@@ -97,7 +97,7 @@ class AppImageService {
       final yamlString = await metadataFile.readAsString();
       final doc = loadYaml(yamlString);
       if (doc is! Map) throw Exception("Invalid metadata.yaml for '$baseName'");
-      app = AppInfo.fromMetadataMap(baseName, doc as Map<String, dynamic>);
+      app = AppInfo.fromMetadataMap(baseName, doc);
     } else {
       app = await _migrateFromDirScan(baseName, targetDir, metadataFile);
     }

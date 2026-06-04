@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:yaml/yaml.dart';
 
 class AppInfo {
   String name;
@@ -50,8 +49,9 @@ class AppInfo {
 
   factory AppInfo.fromMetadataMap(String appName, Map map) {
     final versions = <String>[];
-    if (map['versions'] is YamlList) {
-      for (var v in (map['versions'] as YamlList)) {
+    final versionsField = map['versions'];
+    if (versionsField is Iterable) {
+      for (var v in versionsField) {
         versions.add(v.toString());
       }
     }
