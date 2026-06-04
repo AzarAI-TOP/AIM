@@ -58,17 +58,19 @@ class AppImageService {
       }
     }
 
+    String description = '';
+    final descFile = File('${dir.path}/.description');
+    if (await descFile.exists()) {
+      description = await descFile.readAsString();
+    }
+
     final app = AppInfo(
       name: appName,
       iconPath: iconPath,
+      description: description,
       versions: versions,
       selectedVersion: versions.isNotEmpty ? versions.first : '',
     );
-
-    final descFile = File('${dir.path}/.description');
-    if (await descFile.exists()) {
-      app.description = await descFile.readAsString();
-    }
 
     await metadataFile.writeAsString(app.toMetadataYaml());
 
@@ -92,29 +94,34 @@ class AppImageService {
     await file.copy(targetPath);
 
     final metadataFile = File('${targetDir.path}/metadata.yaml');
-    final AppInfo app;
+    final AppInfo existingApp;
     if (await metadataFile.exists()) {
       final yamlString = await metadataFile.readAsString();
       final doc = loadYaml(yamlString);
       if (doc is! Map) throw Exception("Invalid metadata.yaml for '$baseName'");
-      app = AppInfo.fromMetadataMap(baseName, doc as Map<String, dynamic>);
+      existingApp = AppInfo.fromMetadataMap(baseName, doc);
     } else {
-      app = await _migrateFromDirScan(baseName, targetDir, metadataFile);
+      existingApp = await _migrateFromDirScan(baseName, targetDir, metadataFile);
     }
 
-    if (!app.versions.contains(fileName)) {
-      app.versions.add(fileName);
+    // Use copyWith to add the new version immutably
+    final updatedVersions = List<String>.from(existingApp.versions);
+    if (!updatedVersions.contains(fileName)) {
+      updatedVersions.add(fileName);
     }
-    if (app.selectedVersion.isEmpty) {
-      app.selectedVersion = app.versions.first;
-    }
+    final selectedVersion = existingApp.selectedVersion.isEmpty
+        ? updatedVersions.first
+        : existingApp.selectedVersion;
 
     final extractedIcon = await IconExtractService.extractIcon(targetPath, targetDir.path);
-    if (extractedIcon != null) {
-      app.iconPath = extractedIcon;
-    } else if (app.iconPath.isEmpty) {
-      app.iconPath = targetPath;
-    }
+    final iconPath = extractedIcon ??
+        (existingApp.iconPath.isNotEmpty ? existingApp.iconPath : targetPath);
+
+    final app = existingApp.copyWith(
+      versions: updatedVersions,
+      selectedVersion: selectedVersion,
+      iconPath: iconPath,
+    );
 
     await metadataFile.writeAsString(app.toMetadataYaml());
   }
