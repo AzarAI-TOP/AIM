@@ -1,14 +1,13 @@
 import 'dart:io';
-import 'package:yaml/yaml.dart';
 
 class AppInfo {
-  String name;
-  String iconPath;
-  String description;
-  List<String> versions;
-  String selectedVersion;
-  bool generateLink;
-  bool generateDesktopFile;
+  final String name;
+  final String iconPath;
+  final String description;
+  final List<String> versions;
+  final String selectedVersion;
+  final bool generateLink;
+  final bool generateDesktopFile;
 
   AppInfo({
     required this.name,
@@ -31,6 +30,28 @@ class AppInfo {
     return '$packageDir/$selectedVersion';
   }
 
+  /// Creates a new [AppInfo] with the given fields replaced.
+  /// Unspecified fields retain their current values.
+  AppInfo copyWith({
+    String? name,
+    String? iconPath,
+    String? description,
+    List<String>? versions,
+    String? selectedVersion,
+    bool? generateLink,
+    bool? generateDesktopFile,
+  }) {
+    return AppInfo(
+      name: name ?? this.name,
+      iconPath: iconPath ?? this.iconPath,
+      description: description ?? this.description,
+      versions: versions ?? this.versions,
+      selectedVersion: selectedVersion ?? this.selectedVersion,
+      generateLink: generateLink ?? this.generateLink,
+      generateDesktopFile: generateDesktopFile ?? this.generateDesktopFile,
+    );
+  }
+
   String toMetadataYaml() {
     final buf = StringBuffer();
     buf.writeln('name: $name');
@@ -50,8 +71,9 @@ class AppInfo {
 
   factory AppInfo.fromMetadataMap(String appName, Map map) {
     final versions = <String>[];
-    if (map['versions'] is YamlList) {
-      for (var v in (map['versions'] as YamlList)) {
+    final versionsField = map['versions'];
+    if (versionsField is Iterable) {
+      for (var v in versionsField) {
         versions.add(v.toString());
       }
     }

@@ -9,7 +9,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
@@ -60,12 +60,28 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  Future<void> _openDetail(AppInfo app) async {
+    final returned = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => DetailScreen(appInfo: app),
+      ),
+    );
+
+    // If the detail screen indicated changes were made (returned true),
+    // or the app was uninstalled, refresh from disk.
+    // We always refresh to pick up any changes saved by the detail screen.
+    if (returned == true || returned == null) {
+      await _refreshApps();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Column(
         children: [
-Container(
+          Container(
             height: MediaQuery.of(context).size.height * 0.1,
             alignment: Alignment.center,
             child: const Text(
@@ -73,7 +89,7 @@ Container(
               style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
             ),
           ),
-Expanded(
+          Expanded(
             child: _loading
                 ? const CircularProgressIndicator()
                 : ListView.builder(
@@ -82,15 +98,7 @@ Expanded(
                       final app = _apps[index];
                       return AppListItem(
                         app: app,
-                        onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => DetailScreen(appInfo: app),
-                            ),
-                          );
-                          await _refreshApps();
-                        },
+                        onTap: () => _openDetail(app),
                       );
                     },
                   ),

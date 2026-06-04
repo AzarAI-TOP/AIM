@@ -47,7 +47,8 @@ class _DetailScreenState extends State<DetailScreen> {
     if (_saving) return;
     _saving = true;
     try {
-      _app.description = _descController.text;
+      _app = _app.copyWith(description: _descController.text);
+
       await _appImageService.saveMetadata(_app);
 
       if (_app.generateDesktopFile) {
@@ -87,16 +88,14 @@ class _DetailScreenState extends State<DetailScreen> {
       ),
     );
 
-    if (confirm == false) return;
+    if (confirm != true) return;
 
     try {
-      // Delete the package directory first. If this fails, desktop entry
-      // and symlink remain intact so the app is still usable.
       await _appImageService.deletePackage(_app);
 
       await _desktopService.removeDesktopEntry(_app);
-      _app.generateLink = false;
-      await _desktopService.updateBinLink(_app);
+      final appWithoutLink = _app.copyWith(generateLink: false);
+      await _desktopService.updateBinLink(appWithoutLink);
 
       if (mounted) Navigator.pop(context, true);
     } catch (e) {
@@ -151,7 +150,8 @@ class _DetailScreenState extends State<DetailScreen> {
               title: const Text('在 ~/.local/bin 中创建可执行链接文件'),
               value: _app.generateLink,
               onChanged: (val) {
-                setState(() => _app.generateLink = val ?? false);
+                _app = _app.copyWith(generateLink: val ?? false);
+                setState(() {});
                 _saveSettings();
               },
               controlAffinity: ListTileControlAffinity.leading,
@@ -162,7 +162,8 @@ class _DetailScreenState extends State<DetailScreen> {
               title: const Text('创建 .desktop 桌面入口文件'),
               value: _app.generateDesktopFile,
               onChanged: (val) {
-                setState(() => _app.generateDesktopFile = val ?? true);
+                _app = _app.copyWith(generateDesktopFile: val ?? true);
+                setState(() {});
                 _saveSettings();
               },
               controlAffinity: ListTileControlAffinity.leading,
@@ -175,7 +176,8 @@ class _DetailScreenState extends State<DetailScreen> {
                 return DropdownMenuItem(value: ver, child: Text(ver));
               }).toList(),
               onChanged: (val) {
-                setState(() => _app.selectedVersion = val ?? '');
+                _app = _app.copyWith(selectedVersion: val ?? '');
+                setState(() {});
                 _saveSettings();
               },
             ),
