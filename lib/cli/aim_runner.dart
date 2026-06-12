@@ -9,7 +9,7 @@ import 'commands/list_command.dart';
 import 'commands/remove_command.dart';
 import 'commands/version_command.dart';
 
-const aimVersion = '1.0.0';
+const aimVersion = '1.1.0';
 
 /// gh-style command runner for the `aim` CLI. Wires up every subcommand and
 /// handles the top-level `--version` flag and error reporting.

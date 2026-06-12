@@ -20,12 +20,38 @@ AIM is a Flutter desktop application for managing [AppImage](https://appimage.or
 - **Linux** — AIM relies on freedesktop.org paths (`~/.local/share/applications`, `~/.local/bin`) and AppImage runtime extraction.
 - **Flutter SDK** `>=3.10.7` — See the [Flutter Linux install guide](https://docs.flutter.dev/get-started/install/linux).
 
-## Quick Start
+## Installation
+
+Pre-built packages are attached to each [GitHub release](https://github.com/AzarAI-TOP/AIM/releases). They install the GUI to `/opt/aim` (launchable from your application menu) and the `aim` CLI to `/usr/bin/aim`. No Flutter SDK required.
+
+**Debian / Ubuntu (`.deb`)**
+
+```bash
+sudo apt install ./aim_<version>_amd64.deb
+```
+
+**Fedora / RHEL / openSUSE (`.rpm`)**
+
+```bash
+sudo dnf install ./aim-<version>-1.*.x86_64.rpm
+```
+
+**Other distros (`.tar.gz`)**
+
+```bash
+tar xzf aim-<version>-linux-x86_64.tar.gz
+cd aim-<version>-linux-x86_64
+./install.sh      # copies into /opt and /usr (uses sudo); ./uninstall.sh reverts
+```
+
+After installing, launch **AIM** from your application menu, or run `aim --help` in a terminal.
+
+## Building from Source
 
 ```bash
 # Clone the repository
-git clone https://github.com/azarai/aim.git
-cd aim
+git clone https://github.com/AzarAI-TOP/AIM.git
+cd AIM
 
 # Install dependencies
 flutter pub get
@@ -38,6 +64,14 @@ flutter build linux
 ```
 
 The binary is output to `build/linux/x64/release/bundle/aim`.
+
+### Building Release Packages
+
+```bash
+packaging/build-release.sh        # builds .deb, .rpm and .tar.gz into dist/
+```
+
+Requires `flutter`, `dart`, `tar`, and (for the respective formats) `dpkg-deb` or `ar`, and `rpmbuild`.
 
 ## Usage
 

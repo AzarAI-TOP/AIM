@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=AIM
+GenericName=AppImage Manager
+Comment=Advanced AppImage Manager
+Exec=/opt/aim/aim
+Icon=aim
+Terminal=false
+Categories=Utility;System;
+Keywords=AppImage;Manager;Package;
+StartupWMClass=aim
