@@ -13,6 +13,7 @@ AIM is a Flutter desktop application for managing [AppImage](https://appimage.or
 - **Version Management** — Keep multiple versions of the same application and switch between them from a dropdown.
 - **Icon Extraction** — Automatically extracts application icons from AppImage Type 2 files.
 - **Metadata Persistence** — Per-application YAML metadata files keep state consistent across restarts.
+- **Command-Line Interface** — A `gh`-style `aim` CLI for managing AppImages from the terminal or scripts, with `--json` output for automation.
 
 ## Requirements
 
@@ -47,6 +48,35 @@ The binary is output to `build/linux/x64/release/bundle/aim`.
    - Toggle desktop entry and shell symlink creation.
    - Switch between installed versions.
 4. Changes are saved automatically as you edit. Use the uninstall button to remove an app and all its data.
+
+### Command-Line Interface
+
+AIM ships with a `gh`-style CLI that shares the same managed directory and metadata as the GUI. Run it during development with `dart run bin/aim.dart`, or compile a standalone binary:
+
+```bash
+dart compile exe bin/aim.dart -o aim
+./aim --help
+```
+
+Commands:
+
+```bash
+aim list                          # List managed apps (alias: ls)
+aim install <path> [<path>...]    # Install one or more AppImage files
+aim info <name>                   # Show details for an app (alias: view)
+aim remove <name> [--yes]         # Uninstall an app and its data (alias: rm)
+aim version <name>                # List versions, ● marks the active one
+aim version <name> --set <file>   # Switch the active version
+aim link <name> [--enable|--disable]      # Show/toggle the ~/.local/bin symlink
+aim desktop <name> [--enable|--disable]   # Show/toggle the .desktop entry
+```
+
+`list`, `info`, and `version` accept `--json` for machine-readable output. Color is emitted only when stdout is a terminal and `NO_COLOR` is unset.
+
+```bash
+aim list --json
+aim info Obsidian --json
+```
 
 ### Directory Layout
 
