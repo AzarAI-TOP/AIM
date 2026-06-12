@@ -73,6 +73,12 @@ packaging/build-release.sh        # builds .deb, .rpm and .tar.gz into dist/
 
 Requires `flutter`, `dart`, `tar`, and (for the respective formats) `dpkg-deb` or `ar`, and `rpmbuild`.
 
+Pushing a version tag also builds and publishes these packages automatically via GitHub Actions:
+
+```bash
+git tag v1.2.0 && git push origin v1.2.0   # triggers .github/workflows/release.yml
+```
+
 ## Usage
 
 1. Launch AIM. An empty list is shown on first run.
