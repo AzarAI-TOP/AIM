@@ -73,16 +73,21 @@ class _DetailScreenState extends State<DetailScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text("确认卸载"),
-        content: Text('确定要删除 ${_app.name} 的所有数据吗?'),
+        icon: const Icon(Icons.warning_amber_rounded),
+        title: const Text('确认卸载'),
+        content: Text('确定要删除 ${_app.name} 的所有数据吗?此操作无法撤销。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
             child: const Text('取消'),
           ),
-          TextButton(
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+              foregroundColor: Theme.of(ctx).colorScheme.onError,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('确定'),
+            child: const Text('卸载'),
           ),
         ],
       ),
@@ -109,94 +114,164 @@ class _DetailScreenState extends State<DetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_app.name),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            if (_app.iconPath.isNotEmpty)
-              Image.file(
-                File(_app.iconPath),
-                width: 100,
-                height: 100,
-                fit: BoxFit.contain,
-                errorBuilder: (_, _, _) => const Icon(Icons.apps, size: 100),
-              )
-            else
-              const Icon(Icons.apps, size: 100),
-            const SizedBox(height: 16),
-
-            Text(_app.name, style: Theme.of(context).textTheme.headlineSmall),
-            const SizedBox(height: 16),
-
-            TextField(
+      appBar: AppBar(title: Text(_app.name)),
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+        children: [
+          _buildHeader(theme),
+          const SizedBox(height: 24),
+          _Section(
+            title: '描述',
+            child: TextField(
               controller: _descController,
               focusNode: _descFocusNode,
               decoration: const InputDecoration(
-                labelText: '应用描述',
-                border: OutlineInputBorder(),
+                hintText: '为这个应用添加描述',
+                border: InputBorder.none,
               ),
               maxLines: 3,
-              onSubmitted: (_) {
-                _descFocusNode.unfocus();
-              },
+              onSubmitted: (_) => _descFocusNode.unfocus(),
             ),
-            const SizedBox(height: 24),
-
-            CheckboxListTile(
-              title: const Text('在 ~/.local/bin 中创建可执行链接文件'),
-              value: _app.generateLink,
-              onChanged: (val) {
-                _app = _app.copyWith(generateLink: val ?? false);
-                setState(() {});
-                _saveSettings();
-              },
-              controlAffinity: ListTileControlAffinity.leading,
+          ),
+          const SizedBox(height: 16),
+          _Section(
+            title: '系统集成',
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                SwitchListTile(
+                  title: const Text('创建可执行链接'),
+                  subtitle: const Text('在 ~/.local/bin 中创建命令行链接'),
+                  value: _app.generateLink,
+                  onChanged: (val) {
+                    setState(() => _app = _app.copyWith(generateLink: val));
+                    _saveSettings();
+                  },
+                ),
+                const Divider(height: 1, indent: 16, endIndent: 16),
+                SwitchListTile(
+                  title: const Text('创建桌面入口'),
+                  subtitle: const Text('生成 .desktop 文件以显示在应用菜单'),
+                  value: _app.generateDesktopFile,
+                  onChanged: (val) {
+                    setState(
+                      () => _app = _app.copyWith(generateDesktopFile: val),
+                    );
+                    _saveSettings();
+                  },
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-
-            CheckboxListTile(
-              title: const Text('创建 .desktop 桌面入口文件'),
-              value: _app.generateDesktopFile,
-              onChanged: (val) {
-                _app = _app.copyWith(generateDesktopFile: val ?? true);
-                setState(() {});
-                _saveSettings();
-              },
-              controlAffinity: ListTileControlAffinity.leading,
-            ),
-            const SizedBox(height: 16),
-
-            DropdownButtonFormField<String>(
-              initialValue: _app.selectedVersion.isNotEmpty ? _app.selectedVersion : null,
+          ),
+          const SizedBox(height: 16),
+          _Section(
+            title: '当前版本',
+            child: DropdownButtonFormField<String>(
+              initialValue:
+                  _app.selectedVersion.isNotEmpty ? _app.selectedVersion : null,
+              isExpanded: true,
+              decoration: const InputDecoration(border: InputBorder.none),
               items: _app.versions.map<DropdownMenuItem<String>>((ver) {
                 return DropdownMenuItem(value: ver, child: Text(ver));
               }).toList(),
               onChanged: (val) {
-                _app = _app.copyWith(selectedVersion: val ?? '');
-                setState(() {});
+                setState(() => _app = _app.copyWith(selectedVersion: val ?? ''));
                 _saveSettings();
               },
             ),
-            const SizedBox(height: 40),
-
-            Center(
-              child: ElevatedButton.icon(
-                label: const Text('卸载应用'),
-                icon: const Icon(Icons.delete_forever),
-                onPressed: _uninstall,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
-                ),
-              ),
+          ),
+          const SizedBox(height: 32),
+          OutlinedButton.icon(
+            onPressed: _uninstall,
+            icon: const Icon(Icons.delete_forever),
+            label: const Text('卸载应用'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: theme.colorScheme.error,
+              side: BorderSide(color: theme.colorScheme.error),
+              padding: const EdgeInsets.symmetric(vertical: 14),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+  }
+
+  Widget _buildHeader(ThemeData theme) {
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(20),
+          child: _app.iconPath.isNotEmpty
+              ? Image.file(
+                  File(_app.iconPath),
+                  width: 96,
+                  height: 96,
+                  fit: BoxFit.contain,
+                  errorBuilder: (_, _, _) => _iconPlaceholder(theme),
+                )
+              : _iconPlaceholder(theme),
+        ),
+        const SizedBox(height: 12),
+        Text(_app.name, style: theme.textTheme.headlineSmall),
+        const SizedBox(height: 4),
+        Text(
+          '${_app.versions.length} 个版本',
+          style: theme.textTheme.bodySmall?.copyWith(
+            color: theme.colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _iconPlaceholder(ThemeData theme) {
+    return Container(
+      width: 96,
+      height: 96,
+      color: theme.colorScheme.surfaceContainerHighest,
+      child: Icon(
+        Icons.apps,
+        size: 56,
+        color: theme.colorScheme.onSurfaceVariant,
+      ),
+    );
+  }
+}
+
+class _Section extends StatelessWidget {
+  final String title;
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  const _Section({
+    required this.title,
+    required this.child,
+    this.padding = const EdgeInsets.all(16),
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 4, bottom: 8),
+          child: Text(
+            title,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: theme.colorScheme.primary,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+        Card(
+          margin: EdgeInsets.zero,
+          child: Padding(padding: padding, child: child),
+        ),
+      ],
     );
   }
 }
