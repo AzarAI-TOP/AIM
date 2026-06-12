@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B82F6"/>
+      <stop offset="1" stop-color="#2563EB"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="224" height="224" rx="48" fill="url(#bg)"/>
+  <!-- box / package -->
+  <g fill="none" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M128 78 L186 110 L186 168 L128 200 L70 168 L70 110 Z"/>
+    <path d="M70 110 L128 142 L186 110"/>
+    <path d="M128 142 L128 200"/>
+  </g>
+  <!-- download arrow into the box -->
+  <g fill="#FFFFFF">
+    <rect x="120" y="44" width="16" height="34" rx="4"/>
+    <path d="M108 70 L128 94 L148 70 Z"/>
+  </g>
+</svg>
