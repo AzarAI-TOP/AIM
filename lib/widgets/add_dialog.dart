@@ -8,15 +8,24 @@ class AddDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AlertDialog(
+      icon: const Icon(Icons.download_for_offline_outlined),
       title: const Text('安装 AppImage'),
-      content: const Text('请选择要添加的 AppImage 文件'),
+      content: Text(
+        '选择一个 .AppImage 文件，AIM 会将其复制到 ~/AppImages 并提取图标。',
+        style: theme.textTheme.bodyMedium?.copyWith(
+          color: theme.colorScheme.onSurfaceVariant,
+        ),
+      ),
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
           child: const Text('取消'),
         ),
-        ElevatedButton(
+        FilledButton.icon(
+          icon: const Icon(Icons.folder_open),
+          label: const Text('选择文件'),
           onPressed: () async {
             final navigator = Navigator.of(context);
             FilePickerResult? result = await FilePicker.pickFiles(
@@ -29,7 +38,6 @@ class AddDialog extends StatelessWidget {
               navigator.pop();
             }
           },
-          child: const Text('选择文件'),
         ),
       ],
     );
